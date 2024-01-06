@@ -23,7 +23,7 @@ int start_simulation(t_simulation *simulation) {
 		i++;
 	}
 	if (pthread_join(*simulation->watchdog_thread, NULL))
-		return (BAD_PHILO_EXIT);
+		return (abort_simulation(simulation), BAD_PHILO_EXIT);
 	return (GOOD_PHILO_EXIT);
 }
 
