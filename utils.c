@@ -13,6 +13,8 @@ long long unsigned_atoi(const char *str)
 		res = res * 10 + *str - '0';
 		str++;
 	}
+	if (*str)
+		return (-1);
 	return (res);
 }
 
