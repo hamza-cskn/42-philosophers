@@ -1,5 +1,4 @@
 #include <sys/time.h>
-#define USEC_IN_SEC 1000000
 
 struct timeval get_cur_time() {
 	struct timeval	current_time;
@@ -22,7 +21,7 @@ struct timeval time_diff(struct timeval start, struct timeval end)
 }
 
 struct timeval to_timeval(long long ms) {
-	long long usec = ms * 1e3;
-	return (struct timeval) { .tv_sec = 0 , .tv_usec = usec};
+	long long usec = ms * 1000;
+	return (struct timeval) { .tv_sec = 0 , .tv_usec = (int) usec};
 }
 
