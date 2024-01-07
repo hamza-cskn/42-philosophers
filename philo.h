@@ -57,9 +57,9 @@ typedef struct s_simulation {
 	int must_eat_count;
 } t_simulation;
 
-
 long long unsigned_atoi(const char *str);
 pthread_mutex_t *create_lock();
+pthread_mutex_t **create_sticks(int amount);
 t_time get_cur_time();
 t_time time_diff(t_time start, t_time end);
 t_time to_timeval(long long ms);

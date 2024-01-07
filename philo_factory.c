@@ -65,15 +65,12 @@ int	create_philosopher(t_philosopher *addr, unsigned int id, t_simulation *sim)
 
 t_philosopher	*create_philosophers(t_simulation *simulation)
 {
-	unsigned int	i;
+	int	i;
 	t_philosopher	*philos;
 
-	simulation->sticks = create_sticks(simulation->philo_count);
-	if (!simulation->sticks)
-		return NULL;
-	philos = ft_calloc(sizeof(t_philosopher), simulation->philo_count);
+	philos = ft_calloc(sizeof(t_philosopher), (int) simulation->philo_count);
 	i = 0;
-	while (i < simulation->philo_count)
+	while (i < (int) simulation->philo_count)
 	{
 		if (create_philosopher(&philos[i], i, simulation))
 			return (free_philosophers(philos, i - 1), NULL);
