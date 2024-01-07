@@ -20,6 +20,8 @@ int	eat(t_philosopher *philo)
 	left_stick = philo->simulation->sticks[philo->id];
 	right_stick = philo->simulation->sticks[(philo->id + 1) % philo->simulation->philo_count];
 
+	if (left_stick == right_stick)
+		return (GOOD_PHILO_EXIT);
 	if (pthread_mutex_lock(left_stick))
 		return (prnt_err("eat: left stick could not locked"), BAD_PHILO_EXIT);
 	if (pthread_mutex_lock(right_stick))
@@ -53,6 +55,7 @@ void *philosopher_routine(void *arg)
 		;
 	if (get_sim_state(philo->simulation) == TERMINATED)
 		return NULL;
+	update_last_eat_time(philo);
 	while (get_sim_state(philo->simulation) == RUNNING)
 	{
 		if (get_sync_data(&philo->state_cs, &state, sizeof(t_philo_state)))
