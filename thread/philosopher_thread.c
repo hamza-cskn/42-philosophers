@@ -1,75 +1,106 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philosopher_thread.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/01/30 19:16:27 by hcoskun           #+#    #+#             */
+/*   Updated: 2024/01/30 19:21:02 by hcoskun          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../philo.h"
 #include <stdio.h>
 #include <unistd.h>
 
-int update_last_eat_time(t_philosopher *philo) {
-	t_time last_eat_time;
-	if (gettimeofday(&last_eat_time, NULL))
-		return prnt_err("update_last_eat_time: time could not get"), BAD_PHILO_EXIT;
-	if (set_sync_data(&philo->last_eat_time_cs, &last_eat_time, sizeof(t_time)))
-		return BAD_PHILO_EXIT;
-	return GOOD_PHILO_EXIT;
-}
-
-int	eat(t_philosopher *philo)
+int	increase_eat_count(t_philosopher *philo)
 {
-	pthread_mutex_t *left_stick;
-	pthread_mutex_t *right_stick;
-	
-	left_stick = philo->simulation->sticks[philo->id];
-	right_stick = philo->simulation->sticks[(philo->id + 1) % philo->simulation->philo_count];
+	int	count;
 
-	if (left_stick == right_stick)
+	if (philo->simulation->must_eat_count < 0)
 		return (GOOD_PHILO_EXIT);
-	if (pthread_mutex_lock(left_stick))
-		return (prnt_err("eat: left stick could not locked"), BAD_PHILO_EXIT);
-	if (pthread_mutex_lock(right_stick))
-		return (pthread_mutex_unlock(left_stick), prnt_err("eat: left stick could not locked"), BAD_PHILO_EXIT);
-	if (set_philo_state(philo, EATING))
+	if (get_sync_data(&philo->eat_count_cs, &count, sizeof(int)))
 		return (BAD_PHILO_EXIT);
-	if (get_sim_state(philo->simulation) == RUNNING)
-	{
-		update_last_eat_time(philo);
-		SYNC_PRINT("%llu %d is eating\n", get_timestamp(philo->simulation->start_time), philo->id);
-		suspend_thread(philo->simulation->time_to_eat);
-	}
-	if (pthread_mutex_unlock(left_stick) || pthread_mutex_unlock(right_stick))
-		return (prnt_err("eat: all sticks could not unlocked"), BAD_PHILO_EXIT);
-	if (set_philo_state(philo, SLEEPING))
+	count++;
+	if (set_sync_data(&philo->eat_count_cs, &count, sizeof(int)))
 		return (BAD_PHILO_EXIT);
 	return (GOOD_PHILO_EXIT);
 }
 
-void *philosopher_routine(void *arg)
+int	update_last_eat_time(t_philosopher *philo)
 {
-	t_philosopher *philo;
-	t_philo_state state;
+	t_time	last_eat_time;
+
+	if (gettimeofday(&last_eat_time, NULL))
+		return (printf("update_last_eat_time: error\n"), BAD_PHILO_EXIT);
+	if (set_sync_data(&philo->last_eat_time_cs, &last_eat_time, sizeof(t_time)))
+		return (BAD_PHILO_EXIT);
+	return (GOOD_PHILO_EXIT);
+}
+
+int	eat(t_philosopher *p)
+{
+	pthread_mutex_t	*left;
+	pthread_mutex_t	*right;
+
+	left = p->simulation->sticks[p->id];
+	right = p->simulation->sticks[(p->id + 1) % p->simulation->philo_count];
+	if (left == right)
+		return (GOOD_PHILO_EXIT);
+	if (pthread_mutex_lock(left))
+		return (printf("eat: left stick could not locked\n"), BAD_PHILO_EXIT);
+	if (pthread_mutex_lock(right))
+		return (pthread_mutex_unlock(left), BAD_PHILO_EXIT);
+	if (set_philo_state(p, EATING))
+		return (BAD_PHILO_EXIT);
+	if (get_sim_state(p->simulation) == RUNNING)
+	{
+		if (update_last_eat_time(p) || increase_eat_count(p))
+			return (BAD_PHILO_EXIT);
+		sync_print("%llu %d is eating\n", p);
+		suspend_thread(p->simulation->time_to_eat);
+	}
+	if (pthread_mutex_unlock(left) || pthread_mutex_unlock(right))
+		return (printf("eat: all sticks could not unlocked\n"), BAD_PHILO_EXIT);
+	if (set_philo_state(p, SLEEPING))
+		return (BAD_PHILO_EXIT);
+	return (GOOD_PHILO_EXIT);
+}
+
+int	rest(t_philosopher *philo)
+{
+	sync_print("%llu %d is sleeping\n", philo);
+	suspend_thread(philo->simulation->time_to_sleep);
+	if (get_sim_state(philo->simulation) == TERMINATED)
+		return (BAD_PHILO_EXIT);
+	sync_print("%llu %d is thinking\n", philo);
+	if (set_philo_state(philo, THINKING))
+		return (BAD_PHILO_EXIT);
+	return (GOOD_PHILO_EXIT);
+}
+
+void	*philosopher_routine(void *arg)
+{
+	t_philosopher	*philo;
+	t_philo_state	state;
 
 	philo = (t_philosopher *)arg;
 	while (get_sim_state(philo->simulation) == SUSPENDED)
 		;
 	if (get_sim_state(philo->simulation) == TERMINATED)
-		return NULL;
+		return (NULL);
 	if (philo->id % 2 == 0)
 		usleep(3000);
 	update_last_eat_time(philo);
 	while (get_sim_state(philo->simulation) == RUNNING)
 	{
 		if (get_sync_data(&philo->state_cs, &state, sizeof(t_philo_state)))
-			return set_sim_state(philo->simulation, TERMINATED), NULL;
-		if (state == SLEEPING)
-		{
-			SYNC_PRINT("%llu %d is sleeping\n", get_timestamp(philo->simulation->start_time), philo->id);
-			suspend_thread(philo->simulation->time_to_sleep);
-			if (get_sim_state(philo->simulation) == TERMINATED)
-				return NULL;
-			SYNC_PRINT("%llu %d is thinking\n", get_timestamp(philo->simulation->start_time), philo->id);
-			if (set_philo_state(philo, THINKING))
-				return set_sim_state(philo->simulation, TERMINATED), NULL;
-		}
+			return (set_sim_state(philo->simulation, TERMINATED), NULL);
+		if (state == SLEEPING && rest(philo))
+			return (set_sim_state(philo->simulation, TERMINATED), NULL);
 		else if (state == THINKING && eat(philo))
-			return set_sim_state(philo->simulation, TERMINATED), NULL;
+			return (set_sim_state(philo->simulation, TERMINATED), NULL);
 	}
-	return NULL;
+	return (NULL);
 }
-

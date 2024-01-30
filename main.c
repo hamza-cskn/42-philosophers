@@ -1,18 +1,34 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/01/30 18:59:55 by hcoskun           #+#    #+#             */
+/*   Updated: 2024/01/30 19:00:15 by hcoskun          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <pthread.h>
 #include <stdio.h>
 #include "philo.h"
 #include <stdlib.h> 
 
-int start_simulation(t_simulation *simulation) {
+int	start_simulation(t_simulation *simulation)
+{
 	unsigned int	i;
+
 	i = 0;
 	while (i < simulation->philo_count)
 	{
-		if (pthread_create(&simulation->philos[i].thread, NULL, philosopher_routine, &simulation->philos[i]))
+		if (pthread_create(&simulation->philos[i].thread, NULL,
+				philosopher_routine, &simulation->philos[i]))
 			return (BAD_PHILO_EXIT);
 		i++;
 	}
-	if (pthread_create(simulation->watchdog_thread, NULL, watchdog_routine, simulation))
+	if (pthread_create(simulation->watchdog_thread, NULL,
+			watchdog_routine, simulation))
 		return (BAD_PHILO_EXIT);
 	simulation->start_time = get_cur_time();
 	set_sim_state(simulation, RUNNING);
@@ -28,22 +44,25 @@ int start_simulation(t_simulation *simulation) {
 	return (GOOD_PHILO_EXIT);
 }
 
-int deserialize_time(t_time *time, char *str)
+int	deserialize_time(t_time *time, char *str)
 {
-	long long ms = unsigned_atoi(str);
+	long long	ms;
+
+	ms = unsigned_atoi(str);
 	if (ms < 0)
 	{
 		printf("%s is not a valid number for ms.\n", str);
 		return (BAD_PHILO_EXIT);
 	}
-	*time = (t_time){ms / 1000ll, (int) ((ms % 1000ll) * 1000ll)};
+	*time = (t_time){ms / 1000ll, (int)((ms % 1000ll) * 1000ll)};
 	return (GOOD_PHILO_EXIT);
 }
 
-int init_simulation(t_simulation *sim, pthread_t *watchdog_thread, int ac, char **av)
+int	init_simulation(t_simulation *sim, pthread_t *watchdog, int ac, char **av)
 {
-	*sim = (t_simulation){0};
 	if (create_cs(&sim->state_cs, sizeof(t_sim_state)))
+		return (BAD_PHILO_EXIT);
+	if (pthread_mutex_init(sim->print_mutex, NULL))
 		return (BAD_PHILO_EXIT);
 	*((t_sim_state *)sim->state_cs.data) = SUSPENDED;
 	sim->philo_count = unsigned_atoi(av[1]);
@@ -57,11 +76,10 @@ int init_simulation(t_simulation *sim, pthread_t *watchdog_thread, int ac, char 
 		return (BAD_PHILO_EXIT);
 	sim->sticks = create_sticks((int) sim->philo_count);
 	if (!sim->sticks)
-		return BAD_PHILO_EXIT;
-	sim->must_eat_count = -1;
+		return (BAD_PHILO_EXIT);
 	if (ac >= 6)
 		sim->must_eat_count = (int) unsigned_atoi(av[5]);
-	sim->watchdog_thread = watchdog_thread;
+	sim->watchdog_thread = watchdog;
 	sim->dead_philo_id = -1;
 	sim->philos = create_philosophers(sim);
 	if (!sim->philos)
@@ -69,24 +87,33 @@ int init_simulation(t_simulation *sim, pthread_t *watchdog_thread, int ac, char 
 	return (GOOD_PHILO_EXIT);
 }
 
-int main(int ac, char **av)
+void	sync_print(char *msg, t_philosopher *philo)
 {
-	t_simulation	simulation;
-	pthread_t		watchdog_thread;
+	pthread_mutex_lock(philo->simulation->print_mutex);
+	printf(msg, get_timestamp(philo->simulation->start_time), philo->id);
+	pthread_mutex_unlock(philo->simulation->print_mutex);
+}
 
-	print_mutex = create_lock(); //todo remove it.
+int	main(int ac, char **av)
+{
+	t_simulation	sim;
+	pthread_t		watchdog_thread;
+	int				exit_code;
+
 	if (ac != 5 && ac != 6)
 	{
 		printf("Usage: %s <philo count> <time> <time> <time>\n", av[0]);
-		return 1;
+		return (1);
 	}
-	if (init_simulation(&simulation, &watchdog_thread, ac, av))
-		return (abort_simulation(&simulation), BAD_PHILO_EXIT);
-	int exit_code = start_simulation(&simulation);
-	if (simulation.dead_philo_id != -1)
-		SYNC_PRINT("Philosopher %d is dead\n", simulation.dead_philo_id);
+	sim = (t_simulation){0};
+	sim.must_eat_count = -1;
+	if (init_simulation(&sim, &watchdog_thread, ac, av))
+		return (abort_simulation(&sim), BAD_PHILO_EXIT);
+	exit_code = start_simulation(&sim);
+	if (sim.dead_philo_id != -1)
+		sync_print("%llu %d died\n", &sim.philos[sim.dead_philo_id]);
 	if (exit_code)
-		SYNC_PRINT("Error code: %d\n", exit_code);
-
-	return exit_code;
+		printf("Error code: %d\n", exit_code);
+	abort_simulation(&sim);
+	return (exit_code);
 }

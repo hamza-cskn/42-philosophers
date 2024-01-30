@@ -1,7 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   abort.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/01/30 19:03:52 by hcoskun           #+#    #+#             */
+/*   Updated: 2024/01/30 19:04:22 by hcoskun          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <unistd.h>
 #include "philo.h"
 
 /**
@@ -11,37 +20,37 @@
  *
  * @param ptr
  */
-void safe_free(void *ptr) {
+void	safe_free(void *ptr)
+{
 	if (ptr)
 		free(ptr);
 }
 
-void abort_mutex(pthread_mutex_t **mutex) {
+void	abort_mutex(pthread_mutex_t **mutex)
+{
 	if (!mutex || !*mutex)
-		return;
+		return ;
 	pthread_mutex_destroy(*mutex);
 	free(*mutex);
 	*mutex = NULL;
 }
 
-void abort_sticks(pthread_mutex_t **sticks, int count) {
-	int i;
+void	abort_sticks(pthread_mutex_t **sticks, int count)
+{
+	int	i;
 
 	i = 0;
 	while (i < count)
 		abort_mutex(&sticks[i++]);
+	safe_free(sticks);
 }
 
-void abort_simulation(t_simulation *simulation) {
-	unsigned int i;
+void	abort_simulation(t_simulation *simulation)
+{
+	unsigned int	i;
 
 	i = 0;
 	free_philosophers(simulation->philos, simulation->philo_count);
 	abort_sticks(simulation->sticks, simulation->philo_count);
-	safe_free(simulation->philos);
-}
-
-void prnt_err(char *msg) {
-	write(2, msg, strlen(msg));
-	write(2, "\n", 1);
+	abort_critical_section(simulation->state_cs);
 }

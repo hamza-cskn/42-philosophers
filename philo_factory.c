@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_factory.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/01/30 19:08:30 by hcoskun           #+#    #+#             */
+/*   Updated: 2024/01/30 19:08:31 by hcoskun          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <sys/time.h>
 #include <pthread.h>
 #include "philo.h"
@@ -10,6 +22,7 @@
 void	free_philosopher(t_philosopher philo)
 {
 	abort_critical_section(philo.last_eat_time_cs);
+	abort_critical_section(philo.eat_count_cs);
 	abort_critical_section(philo.state_cs);
 }
 
@@ -18,7 +31,7 @@ void	free_philosophers(t_philosopher *philos, int count)
 	int	i;
 
 	if (!philos)
-		return;
+		return ;
 	i = 0;
 	while (i < count)
 	{
@@ -28,23 +41,23 @@ void	free_philosophers(t_philosopher *philos, int count)
 	safe_free(philos);
 }
 
-pthread_mutex_t **create_sticks(int amount)
+pthread_mutex_t	**create_sticks(int amount)
 {
-	pthread_mutex_t **sticks;
-	int i;
+	pthread_mutex_t	**sticks;
+	int				i;
 
 	sticks = malloc(sizeof(pthread_mutex_t *) * amount);
 	if (!sticks)
-		return NULL;
+		return (NULL);
 	i = 0;
 	while (i < amount)
 	{
 		sticks[i] = create_lock();
 		if (!sticks[i])
-			return abort_sticks(sticks, i), NULL;
+			return (abort_sticks(sticks, i), NULL);
 		i++;
 	}
-	return sticks;
+	return (sticks);
 }
 
 int	create_philosopher(t_philosopher *addr, unsigned int id, t_simulation *sim)
@@ -54,20 +67,25 @@ int	create_philosopher(t_philosopher *addr, unsigned int id, t_simulation *sim)
 	philo.id = id;
 	philo.simulation = sim;
 	if (create_cs(&philo.last_eat_time_cs, sizeof(struct timeval)))
-		return BAD_PHILO_EXIT;
+		return (BAD_PHILO_EXIT);
 	if (create_cs(&philo.state_cs, sizeof(t_philo_state)))
-		return abort_critical_section(philo.state_cs), BAD_PHILO_EXIT;
+		return (abort_critical_section(philo.last_eat_time_cs), BAD_PHILO_EXIT);
+	if (create_cs(&philo.eat_count_cs, sizeof(int)))
+	{
+		abort_critical_section(philo.last_eat_time_cs);
+		abort_critical_section(philo.state_cs);
+		return (BAD_PHILO_EXIT);
+	}
 	*((t_time *) philo.last_eat_time_cs.data) = (t_time){2147483647, 0};
 	*((t_philo_state *) philo.state_cs.data) = THINKING;
-	//if (id % 2 == 0 && id < sim->philo_count - 1)
-	//	*((t_philo_state *) philo.state_cs.data) = SLEEPING;
+	*((int *) philo.eat_count_cs.data) = 0;
 	*addr = philo;
-	return GOOD_PHILO_EXIT;
+	return (GOOD_PHILO_EXIT);
 }
 
 t_philosopher	*create_philosophers(t_simulation *simulation)
 {
-	int	i;
+	int				i;
 	t_philosopher	*philos;
 
 	philos = ft_calloc(sizeof(t_philosopher), (int) simulation->philo_count);
@@ -80,5 +98,3 @@ t_philosopher	*create_philosophers(t_simulation *simulation)
 	}
 	return (philos);
 }
-
-
