@@ -33,7 +33,7 @@ typedef struct s_critical_section
 } t_critical_section;
 
 typedef struct s_simulation t_simulation;
-pthread_mutex_t *print_mutex;
+pthread_mutex_t *print_mutex; //TODO: remove it
 
 typedef struct s_philosopher {
 	pthread_t thread;
@@ -61,8 +61,10 @@ long long unsigned_atoi(const char *str);
 pthread_mutex_t *create_lock();
 pthread_mutex_t **create_sticks(int amount);
 t_time get_cur_time();
+unsigned long long get_timestamp(struct timeval start);
 t_time time_diff(t_time start, t_time end);
-t_time to_timeval(long long ms);
+t_time to_timeval(unsigned long long ms);
+unsigned long long to_ms(t_time time);
 void *ft_calloc(unsigned long size, int count);
 void abort_mutex(pthread_mutex_t **mutex);
 void abort_sticks(pthread_mutex_t **sticks, int count);
@@ -86,5 +88,8 @@ int set_sim_state(t_simulation *sim, t_sim_state state);
 
 t_philo_state get_philo_state(t_philosopher *philo);
 int set_philo_state(t_philosopher *philo, t_philo_state state);
+int is_bigger_than(t_time a, t_time b);
+
+void suspend_thread(t_time time);
 
 #endif

@@ -1,10 +1,10 @@
 #include <pthread.h>
 #include <stdio.h>
 #include "philo.h"
+#include <stdlib.h> 
 
 int start_simulation(t_simulation *simulation) {
 	unsigned int	i;
-	simulation->start_time = get_cur_time();
 	i = 0;
 	while (i < simulation->philo_count)
 	{
@@ -14,6 +14,7 @@ int start_simulation(t_simulation *simulation) {
 	}
 	if (pthread_create(simulation->watchdog_thread, NULL, watchdog_routine, simulation))
 		return (BAD_PHILO_EXIT);
+	simulation->start_time = get_cur_time();
 	set_sim_state(simulation, RUNNING);
 	i = 0;
 	while (i < simulation->philo_count)
@@ -74,12 +75,18 @@ int main(int ac, char **av)
 	pthread_t		watchdog_thread;
 
 	print_mutex = create_lock(); //todo remove it.
+	if (ac != 5 && ac != 6)
+	{
+		printf("Usage: %s <philo count> <time> <time> <time>\n", av[0]);
+		return 1;
+	}
 	if (init_simulation(&simulation, &watchdog_thread, ac, av))
-		return (printf("Program could not initialized.\n"), BAD_PHILO_EXIT);
+		return (abort_simulation(&simulation), BAD_PHILO_EXIT);
 	int exit_code = start_simulation(&simulation);
 	if (simulation.dead_philo_id != -1)
 		SYNC_PRINT("Philosopher %d is dead\n", simulation.dead_philo_id);
 	if (exit_code)
 		SYNC_PRINT("Error code: %d\n", exit_code);
+
 	return exit_code;
 }

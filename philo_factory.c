@@ -17,6 +17,8 @@ void	free_philosophers(t_philosopher *philos, int count)
 {
 	int	i;
 
+	if (!philos)
+		return;
 	i = 0;
 	while (i < count)
 	{

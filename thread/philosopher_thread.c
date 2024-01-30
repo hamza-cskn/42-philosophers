@@ -13,10 +13,9 @@ int update_last_eat_time(t_philosopher *philo) {
 
 int	eat(t_philosopher *philo)
 {
-
 	pthread_mutex_t *left_stick;
 	pthread_mutex_t *right_stick;
-
+	
 	left_stick = philo->simulation->sticks[philo->id];
 	right_stick = philo->simulation->sticks[(philo->id + 1) % philo->simulation->philo_count];
 
@@ -30,16 +29,12 @@ int	eat(t_philosopher *philo)
 		return (BAD_PHILO_EXIT);
 	if (get_sim_state(philo->simulation) == RUNNING)
 	{
-		SYNC_PRINT("[%ld.%d] Philosopher %d took the sticks. locks: %p,%p\n", get_cur_time().tv_sec, get_cur_time().tv_usec, philo->id, left_stick, right_stick);
-		SYNC_PRINT("[%ld.%d] Philosopher %d is eating for %d\n", get_cur_time().tv_sec, get_cur_time().tv_usec, philo->id, philo->simulation->time_to_eat.tv_usec);
-		usleep(philo->simulation->time_to_eat.tv_usec);
 		update_last_eat_time(philo);
-		t_time diff = time_diff(philo->simulation->start_time, get_cur_time());
-		SYNC_PRINT("%ld.%d time passed\n", diff.tv_sec, diff.tv_usec);
+		SYNC_PRINT("%llu %d is eating\n", get_timestamp(philo->simulation->start_time), philo->id);
+		suspend_thread(philo->simulation->time_to_eat);
 	}
 	if (pthread_mutex_unlock(left_stick) || pthread_mutex_unlock(right_stick))
 		return (prnt_err("eat: all sticks could not unlocked"), BAD_PHILO_EXIT);
-	SYNC_PRINT("[%ld.%d] Philosopher %d free the sticks. frees: %p,%p\n", get_cur_time().tv_sec, get_cur_time().tv_usec, philo->id, left_stick, right_stick);
 	if (set_philo_state(philo, SLEEPING))
 		return (BAD_PHILO_EXIT);
 	return (GOOD_PHILO_EXIT);
@@ -55,6 +50,8 @@ void *philosopher_routine(void *arg)
 		;
 	if (get_sim_state(philo->simulation) == TERMINATED)
 		return NULL;
+	if (philo->id % 2 == 0)
+		usleep(3000);
 	update_last_eat_time(philo);
 	while (get_sim_state(philo->simulation) == RUNNING)
 	{
@@ -62,16 +59,16 @@ void *philosopher_routine(void *arg)
 			return set_sim_state(philo->simulation, TERMINATED), NULL;
 		if (state == SLEEPING)
 		{
-			SYNC_PRINT("[%ld.%d] Philosopher %d is sleeping for %d\n", get_cur_time().tv_sec, get_cur_time().tv_usec, philo->id, philo->simulation->time_to_sleep.tv_usec);
-			usleep(philo->simulation->time_to_sleep.tv_usec);
+			SYNC_PRINT("%llu %d is sleeping\n", get_timestamp(philo->simulation->start_time), philo->id);
+			suspend_thread(philo->simulation->time_to_sleep);
+			if (get_sim_state(philo->simulation) == TERMINATED)
+				return NULL;
+			SYNC_PRINT("%llu %d is thinking\n", get_timestamp(philo->simulation->start_time), philo->id);
 			if (set_philo_state(philo, THINKING))
 				return set_sim_state(philo->simulation, TERMINATED), NULL;
 		}
-		else if (state == THINKING)
-		{
-			if (eat(philo))
-				return set_sim_state(philo->simulation, TERMINATED), NULL;
-		}
+		else if (state == THINKING && eat(philo))
+			return set_sim_state(philo->simulation, TERMINATED), NULL;
 	}
 	return NULL;
 }

@@ -36,11 +36,7 @@ void abort_simulation(t_simulation *simulation) {
 	unsigned int i;
 
 	i = 0;
-	while (i < simulation->philo_count)
-	{
-		if (simulation->philos[i].thread)
-			pthread_detach(simulation->philos[i].thread);
-	}
+	free_philosophers(simulation->philos, simulation->philo_count);
 	abort_sticks(simulation->sticks, simulation->philo_count);
 	safe_free(simulation->philos);
 }
