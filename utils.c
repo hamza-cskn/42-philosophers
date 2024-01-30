@@ -6,13 +6,12 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:15:01 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:15:35 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 19:32:48 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 #include "philo.h"
 
 long long	unsigned_atoi(const char *str)

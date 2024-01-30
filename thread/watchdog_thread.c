@@ -6,14 +6,12 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:21:46 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:22:33 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 19:31:13 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo.h"
-#include <stdio.h>
 #include <unistd.h>
-#include <sys/fcntl.h>
 
 /**
  * Compares given timeval to each other

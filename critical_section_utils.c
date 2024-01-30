@@ -6,12 +6,11 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:05:15 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:25:24 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 19:31:32 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include <pthread.h>
 #include "philo.h"
 #include <stdio.h>
 
@@ -36,7 +35,7 @@ void	*ft_memcpy(void *dst, const void *src, unsigned int n)
 	return (dest);
 }
 
-int	get_sync_data(t_critical_section *cs, void *addr, unsigned int size)
+int	get_sync_data(t_critical_section *cs, void *addr, int size)
 {
 	if (pthread_mutex_lock(cs->mutex))
 		return (printf("get_sync_data: could not locked\n"), BAD_PHILO_EXIT);
@@ -56,7 +55,7 @@ int	set_sync_data(t_critical_section *cs, void *data, int size)
 	return (GOOD_PHILO_EXIT);
 }
 
-int	create_cs(t_critical_section *addr, int size)
+int	create_cs(t_critical_section *addr, unsigned int size)
 {
 	t_critical_section	cs;
 

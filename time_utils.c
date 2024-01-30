@@ -6,13 +6,11 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:10:09 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:14:27 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 19:32:31 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/time.h>
 #include <unistd.h>
-#include <stdio.h>
 #include "philo.h"
 
 struct timeval	get_cur_time(void)

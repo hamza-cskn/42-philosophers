@@ -6,14 +6,12 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 18:59:55 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:00:15 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 19:31:58 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <pthread.h>
 #include <stdio.h>
 #include "philo.h"
-#include <stdlib.h> 
 
 int	start_simulation(t_simulation *simulation)
 {

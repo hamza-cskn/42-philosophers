@@ -6,12 +6,11 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:08:30 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:08:31 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 19:33:06 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/time.h>
-#include <pthread.h>
 #include "philo.h"
 #include <stdlib.h>
 
