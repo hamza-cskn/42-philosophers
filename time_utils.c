@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:10:09 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:32:31 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 20:44:15 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ struct timeval	to_timeval(unsigned long long ms)
 	usec = ms * 1000;
 	return ((struct timeval){.tv_sec = 0, .tv_usec = (int) usec});
 }
-
 void	suspend_thread(struct timeval time)
 {
 	struct timeval		start;

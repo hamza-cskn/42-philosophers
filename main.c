@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 18:59:55 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:31:58 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 20:19:13 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	init_simulation(t_simulation *sim, pthread_t *watchdog, int ac, char **av)
 {
 	if (create_cs(&sim->state_cs, sizeof(t_sim_state)))
 		return (BAD_PHILO_EXIT);
-	if (pthread_mutex_init(sim->print_mutex, NULL))
+	if (pthread_mutex_init(&sim->print_mutex, NULL))
 		return (BAD_PHILO_EXIT);
 	*((t_sim_state *)sim->state_cs.data) = SUSPENDED;
 	sim->philo_count = unsigned_atoi(av[1]);
@@ -87,9 +87,9 @@ int	init_simulation(t_simulation *sim, pthread_t *watchdog, int ac, char **av)
 
 void	sync_print(char *msg, t_philosopher *philo)
 {
-	pthread_mutex_lock(philo->simulation->print_mutex);
-	printf(msg, get_timestamp(philo->simulation->start_time), philo->id);
-	pthread_mutex_unlock(philo->simulation->print_mutex);
+	pthread_mutex_lock(&philo->simulation->print_mutex);
+	printf(msg, get_timestamp(philo->simulation->start_time), philo->id + 1);
+	pthread_mutex_unlock(&philo->simulation->print_mutex);
 }
 
 int	main(int ac, char **av)

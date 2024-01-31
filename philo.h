@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:24:42 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:27:57 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/01/30 20:09:04 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ typedef struct s_simulation
 	t_critical_section	state_cs;
 	int					dead_philo_id;
 	pthread_t			*watchdog_thread;
-	pthread_mutex_t		*print_mutex;
+	pthread_mutex_t		print_mutex;
 	t_time				time_to_die;
 	t_time				time_to_eat;
 	t_time				time_to_sleep;
