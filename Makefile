@@ -1,5 +1,5 @@
 NAME = philo
-FLAGS = -g -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror
 CC = gcc
 SRCS = main.c utils.c time_utils.c state_utils.c philo_factory.c critical_section_utils.c abort.c thread/philosopher_thread.c thread/watchdog_thread.c
 OBJS = $(SRCS:.c=.o)
