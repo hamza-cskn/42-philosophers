@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:24:42 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 20:09:04 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 13:01:40 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ typedef struct s_simulation
 	t_philosopher		*philos;
 	pthread_mutex_t		**sticks;
 	t_critical_section	state_cs;
-	int					dead_philo_id;
 	pthread_t			*watchdog_thread;
 	pthread_mutex_t		print_mutex;
 	t_time				time_to_die;
@@ -85,7 +84,7 @@ void				abort_simulation(t_simulation *simulation);
 void				safe_free(void *ptr);
 t_philosopher		*create_philosophers(t_simulation *simulation);
 void				free_philosophers(t_philosopher *philos, int count);
-void				sync_print(char *msg, t_philosopher *philo);
+int					sync_print(char *msg, t_philosopher *philo);
 int					get_sync_data(t_critical_section *c, void *a, int s);
 int					set_sync_data(t_critical_section *c, void *d, int s);
 int					create_cs(t_critical_section *addr, unsigned int size);

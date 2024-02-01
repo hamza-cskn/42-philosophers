@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:21:46 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:31:13 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 13:01:49 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,8 @@ int	check_philosopher(t_philosopher *philo)
 	if (is_bigger_than(diff, simulation->time_to_die))
 	{
 		set_sim_state(simulation, TERMINATED);
-		simulation->dead_philo_id = philo->id;
+		usleep(2000);
+		sync_print("%llu %d died\n", philo);
 		return (BAD_PHILO_EXIT);
 	}
 	return (GOOD_PHILO_EXIT);

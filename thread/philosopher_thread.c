@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:16:27 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:30:58 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 14:19:49 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ int	eat(t_philosopher *p)
 		return (BAD_PHILO_EXIT);
 	if (get_sim_state(p->simulation) == RUNNING)
 	{
-		if (update_last_eat_time(p) || increase_eat_count(p))
+		if (update_last_eat_time(p) || increase_eat_count(p)
+			|| sync_print("%llu %d is eating\n", p))
 			return (BAD_PHILO_EXIT);
-		sync_print("%llu %d is eating\n", p);
 		suspend_thread(p->simulation->time_to_eat);
 	}
 	if (pthread_mutex_unlock(left) || pthread_mutex_unlock(right))
@@ -70,11 +70,13 @@ int	eat(t_philosopher *p)
 
 int	rest(t_philosopher *philo)
 {
-	sync_print("%llu %d is sleeping\n", philo);
+	if (sync_print("%llu %d is sleeping\n", philo))
+		return (BAD_PHILO_EXIT);
 	suspend_thread(philo->simulation->time_to_sleep);
 	if (get_sim_state(philo->simulation) == TERMINATED)
 		return (BAD_PHILO_EXIT);
-	sync_print("%llu %d is thinking\n", philo);
+	if (sync_print("%llu %d is thinking\n", philo))
+		return (BAD_PHILO_EXIT);
 	if (set_philo_state(philo, THINKING))
 		return (BAD_PHILO_EXIT);
 	return (GOOD_PHILO_EXIT);

@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 18:59:55 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 20:19:13 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 13:07:16 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,21 +75,24 @@ int	init_simulation(t_simulation *sim, pthread_t *watchdog, int ac, char **av)
 	sim->sticks = create_sticks((int) sim->philo_count);
 	if (!sim->sticks)
 		return (BAD_PHILO_EXIT);
+	sim->must_eat_count = -1;
 	if (ac >= 6)
 		sim->must_eat_count = (int) unsigned_atoi(av[5]);
 	sim->watchdog_thread = watchdog;
-	sim->dead_philo_id = -1;
 	sim->philos = create_philosophers(sim);
 	if (!sim->philos)
 		return (BAD_PHILO_EXIT);
 	return (GOOD_PHILO_EXIT);
 }
 
-void	sync_print(char *msg, t_philosopher *philo)
+int	sync_print(char *msg, t_philosopher *philo)
 {
-	pthread_mutex_lock(&philo->simulation->print_mutex);
+	if (pthread_mutex_lock(&philo->simulation->print_mutex))
+		return (BAD_PHILO_EXIT);
 	printf(msg, get_timestamp(philo->simulation->start_time), philo->id + 1);
-	pthread_mutex_unlock(&philo->simulation->print_mutex);
+	if (pthread_mutex_unlock(&philo->simulation->print_mutex))
+		return (BAD_PHILO_EXIT);
+	return (GOOD_PHILO_EXIT);
 }
 
 int	main(int ac, char **av)
@@ -104,12 +107,9 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	sim = (t_simulation){0};
-	sim.must_eat_count = -1;
 	if (init_simulation(&sim, &watchdog_thread, ac, av))
 		return (abort_simulation(&sim), BAD_PHILO_EXIT);
 	exit_code = start_simulation(&sim);
-	if (sim.dead_philo_id != -1)
-		sync_print("%llu %d died\n", &sim.philos[sim.dead_philo_id]);
 	if (exit_code)
 		printf("Error code: %d\n", exit_code);
 	abort_simulation(&sim);
