@@ -6,20 +6,13 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:03:52 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:04:22 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 14:24:26 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include "philo.h"
 
-/**
- * This function is accepts null pointers and frees them
- * if they are not null. Before every free operation, the
- * pointer is set to zero and the memory is zeroed out.
- *
- * @param ptr
- */
 void	safe_free(void *ptr)
 {
 	if (ptr)
