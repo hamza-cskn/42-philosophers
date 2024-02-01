@@ -6,12 +6,17 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:09:01 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:09:37 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 14:28:26 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 #include <stdio.h>
+
+/**
+ * functions in this file makes easy to allow some
+ * mutex variables. 
+*/
 
 t_sim_state	get_sim_state(t_simulation *sim)
 {

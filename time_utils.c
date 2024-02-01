@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:10:09 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/31 12:30:11 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 14:29:59 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,17 @@ struct timeval	to_timeval(unsigned long long ms)
 	return ((struct timeval){.tv_sec = 0, .tv_usec = (int) usec});
 }
 
+/**
+ * ensures the current thread will stop
+ * for @param time.
+ * 
+ * to be extremely sensitive, it waits until
+ * 10ms short than the @param time. and wait
+ * busy for 10ms. 
+ * 
+ * assumes time > 10ms.
+ * 
+*/
 void	suspend_thread(struct timeval time)
 {
 	struct timeval		start;
