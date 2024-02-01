@@ -6,7 +6,7 @@
 /*   By: hcoskun <hcoskun@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/30 19:08:30 by hcoskun           #+#    #+#             */
-/*   Updated: 2024/01/30 19:33:06 by hcoskun          ###   ########.fr       */
+/*   Updated: 2024/02/01 14:26:50 by hcoskun          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,12 @@ int	create_philosopher(t_philosopher *addr, unsigned int id, t_simulation *sim)
 	return (GOOD_PHILO_EXIT);
 }
 
+/**
+ * creates philosophers array and initialize philosopher structs.
+ * 
+ * in an error state,
+ * frees all pointers and returns null cleanly.
+*/
 t_philosopher	*create_philosophers(t_simulation *simulation)
 {
 	int				i;
